@@ -7,6 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lab 9</title>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "bba114d31ff748ff8dddd4d38fee1866"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+
   <style>
     button {
       margin: 3px;
@@ -69,25 +77,37 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button id="console-log">Console Log</button>
+      <button id="console-error">Console Error</button>
+      <button id="console-count">Console Count</button>
+      <button id="console-warn">Console Warn</button>
+      <button id="console-assert">Console Assert</button>
+      <button id="console-clear">Console Clear</button>
+      <button id="console-dir">Console Dir</button>
+      <button id="console-dirxml">Console dirxml</button>
+      <button id="console-group-start">Console Group Start</button>
+      <button id="console-group-end">Console Group End</button>
+      <button id="console-table">Console Table</button>
+      <button id="start-timer">Start Timer</button>
+      <button id="end-timer">End Timer</button>
+      <button id="console-trace">Console Trace</button>
+      <button id="global-trigger">Trigger a Global Error</button>
     </section>
   </main>
 
   <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.error('Global error caught:', message);
+      return true; // Prevents the default browser error handling
+    };
+
+    class CalculationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = 'CalculationError';
+      }
+    }
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,14 +115,101 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
-    });
 
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+      try {
+        if (firstNum === '' || secondNum === '') {
+          throw new Error('Must have valid inputs');
+        }
+        
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+          throw new CalculationError('Must input numbers');
+        }
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (error) {
+        console.error('Error:', error);
+        output.innerHTML = `Error: ${error.message}`;
+      } finally {
+        console.log('Finished calculation')
+      }
+    });
 
     // Start your code here
     // You may move this JS to another file if you wish
+    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+
+    errorBtns[0].addEventListener('click', () => {
+      console.log(errorBtns[0].innerHTML);
+    });
+
+    errorBtns[1].addEventListener('click', () => {
+      console.error(errorBtns[1].innerHTML);
+    });
+
+    errorBtns[2].addEventListener('click', () => {
+      console.count();
+    });
+
+    errorBtns[3].addEventListener('click', () => {
+      console.warn('This is a console warning message');
+    });
+
+    errorBtns[4].addEventListener('click', () => {
+      console.assert(false, 'This is a console assert message');
+    });
+
+    errorBtns[5].addEventListener('click', () => {
+      console.clear();
+    });
+
+    errorBtns[6].addEventListener('click', () => {
+      console.dir(errorBtns[6]);
+    });
+
+    errorBtns[7].addEventListener('click', () => {
+      console.dirxml(errorBtns[7]);
+    });
+
+    errorBtns[8].addEventListener('click', () => {
+      // console.group();
+      const label = 'Sports';
+      console.group(label);
+      console.info('football');
+      console.info('soccer');
+      console.info('baseball');
+    });
+
+    errorBtns[9].addEventListener('click', () => {
+      console.groupEnd('Sports');
+    });
+
+    errorBtns[10].addEventListener('click', () => {
+      console.table([{ ex1: 'Hi', a1: 10 }, { ex2: 'Bye', a2: 5 }]);
+    });
+
+    errorBtns[11].addEventListener('click', () => {
+      console.time();
+    });
+
+    errorBtns[12].addEventListener('click', () => {
+      console.timeEnd();
+    });
+
+    errorBtns[13].addEventListener('click', () => {
+      console.trace();
+    });
+
+    document.querySelector('#global-trigger').addEventListener('click', () => {
+      functionThatDoesntExistToCauseError();
+    });
   </script>
 </body>
 
 </html>
+
+
+const label = 'Sports';
+            console.group(label);
+            console.info('football');
+            console.info('soccer');
+            console.info('baseball');
+
